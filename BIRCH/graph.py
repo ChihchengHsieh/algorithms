@@ -11,6 +11,8 @@ def generate_graph_from_gaze_df(gaze_df, img_width, img_height, threshold=0.1, b
     # remove unused columns and  null values.
     gaze_df = gaze_df[['x_position', 'y_position']]
     gaze_df = gaze_df[~(gaze_df['x_position'].isna() | gaze_df['x_position'].isna())]
+    gaze_df = gaze_df[gaze_df['x_position'].between(0, img_width)]
+    gaze_df = gaze_df[gaze_df['y_position'].between(0, img_height)]
 
     # create gaze points
     gaze_points = np.array([(x,y) for x, y in zip(gaze_df['x_position'], gaze_df['y_position'])])
@@ -66,7 +68,7 @@ def generate_graph_from_gaze_df(gaze_df, img_width, img_height, threshold=0.1, b
     # Add nodes to the graph and set their positions
     for (i, x, y) in zip(birch.subcluster_labels_, norm_centroid_x, norm_centroid_y):
         N = len(gaze_df[gaze_df['cluster'] == i])
-        C = undirected_adjacency[i,i]
+        C = undirected_adjacency[i,i] + 1
         G.add_node(i, pos=(x,y), N=N, C=C)
     
     # Add edges to the graph and set their weights
